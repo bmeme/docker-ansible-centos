@@ -1,0 +1,26 @@
+---
+name: docker-ansible-centos Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+  schedule:
+    - cron: "00 0 * * 0"
+
+jobs:
+  centos7:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Test building images
+        run: scripts/build.sh 7 7.9
+
+      - name: Run one of the built image.
+        run: docker run --name bmeme-docker-ansible-centos -d --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro bmeme/docker-ansible-centos:7
+
+      - name: Verify Ansible is accessible
+        run: docker exec --tty bmeme-docker-ansible-centos env TERM=xterm ansible --version
